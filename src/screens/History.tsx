@@ -1,63 +1,75 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
-import { ArrowLeft, FileText, ScrollText, Trash2, Eye, Download, Clock } from 'lucide-react';
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { ArrowLeft, FileText, ScrollText, Trash2, Eye, Clock } from "lucide-react";
 
 interface Record {
   id: string;
   receipt_no: string;
   data: any;
   created_at: string;
-  type: 'agreement' | 'receipt';
+  type: "agreement" | "receipt";
 }
 
 const History = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'agreement' | 'receipt'>('all');
+  const [filter, setFilter] = useState<"all" | "agreement" | "receipt">("all");
 
   useEffect(() => {
-    if (user) loadRecords();
+    if (user) {
+      void loadRecords();
+    }
   }, [user]);
 
   const loadRecords = async () => {
+    if (!user) return;
     setLoading(true);
-    const [{ data: agreements }, { data: receipts }] = await Promise.all([
-      supabase.from('sales_agreements').select('*').order('created_at', { ascending: false }),
-      supabase.from('sales_receipts').select('*').order('created_at', { ascending: false }),
-    ]);
-
-    const all: Record[] = [
-      ...(agreements || []).map(a => ({ ...a, type: 'agreement' as const })),
-      ...(receipts || []).map(r => ({ ...r, type: 'receipt' as const })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-    setRecords(all);
-    setLoading(false);
+    try {
+      const response = await fetch(`/api/history?userId=${encodeURIComponent(user.id)}`);
+      if (!response.ok) {
+        throw new Error("Failed to load history");
+      }
+      const payload = (await response.json()) as { records: Record[] };
+      setRecords(payload.records ?? []);
+    } catch {
+      toast.error("Failed to load documents");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (record: Record) => {
+    if (!user) return;
     if (!confirm(`Delete ${record.type === 'agreement' ? 'agreement' : 'receipt'} ${record.receipt_no}?`)) return;
     setDeleting(record.id);
-    const table = record.type === 'agreement' ? 'sales_agreements' : 'sales_receipts';
-    const { error } = await supabase.from(table).delete().eq('id', record.id);
-    if (error) {
-      toast.error('Failed to delete');
-    } else {
-      toast.success('Deleted successfully');
+    const resource = record.type === "agreement" ? "sales-agreements" : "sales-receipts";
+
+    try {
+      const response = await fetch(
+        `/api/${resource}/${record.id}?userId=${encodeURIComponent(user.id)}`,
+        { method: "DELETE" },
+      );
+      if (!response.ok) {
+        throw new Error("Delete failed");
+      }
+      toast.success("Deleted successfully");
       setRecords(prev => prev.filter(r => r.id !== record.id));
+    } catch {
+      toast.error("Failed to delete");
     }
     setDeleting(null);
   };
 
   const handleView = (record: Record) => {
-    const path = record.type === 'agreement' ? '/sales-agreement' : '/sales-receipt';
-    navigate(`${path}?id=${record.id}`);
+    const path = record.type === "agreement" ? "/sales-agreement" : "/sales-receipt";
+    router.push(`${path}?id=${record.id}`);
   };
 
   const filtered = filter === 'all' ? records : records.filter(r => r.type === filter);
@@ -73,7 +85,7 @@ const History = () => {
       <header className="bg-brand-black border-b border-primary/30 sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/')} className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+            <button onClick={() => router.push("/")} className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-primary-foreground">

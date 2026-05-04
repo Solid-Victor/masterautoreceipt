@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SalesAgreement {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  receiptNo String   @map("receipt_no")
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("sales_agreements")
+}
+
+model SalesReceipt {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  receiptNo String   @map("receipt_no")
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("sales_receipts")
+}

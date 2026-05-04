@@ -1,6 +1,7 @@
+"use client";
+
+import Image from "next/image";
 import { ReceiptData } from '@/types/receipt';
-import logo from '@/assets/logo.png';
-import carLogos from '@/assets/car-logos.png';
 
 interface Props {
   data: ReceiptData;
@@ -64,7 +65,14 @@ export const ReceiptPreview = ({ data }: Props) => {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-        <img src={logo} alt="Master Luxury & Flex" style={{ width: '72px', height: '72px', objectFit: 'contain', borderRadius: '4px' }} />
+        <Image
+          src="/logo.png"
+          alt="Master Luxury & Flex"
+          width={72}
+          height={72}
+          style={{ width: "72px", height: "72px", objectFit: "contain", borderRadius: "4px" }}
+          priority
+        />
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#1a1a1a', letterSpacing: '-0.5px', margin: 0 }}>
             MASTER <span style={{ color: '#DC2626' }}>LUXURY</span> & FLEX
@@ -229,7 +237,13 @@ export const ReceiptPreview = ({ data }: Props) => {
 
       {/* Car Brand Logos */}
       <div style={{ textAlign: 'center', margin: '10px 0 4px' }}>
-        <img src={carLogos} alt="We deal on all car brands" style={{ width: '100%', height: '80px', objectFit: 'contain', display: 'block', opacity: 0.85 }} />
+        <Image
+          src="/car-logos.png"
+          alt="We deal on all car brands"
+          width={1200}
+          height={80}
+          style={{ width: "100%", height: "80px", objectFit: "contain", display: "block", opacity: 0.85 }}
+        />
         <p style={{ fontSize: '10px', fontWeight: 600, color: '#1a1a1a', letterSpacing: '0.5px', margin: '5px 0 0' }}>
           Please contact us for all car brands!
         </p>
