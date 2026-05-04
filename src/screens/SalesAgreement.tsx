@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
-import { ReceiptData, defaultReceiptData } from '@/types/receipt';
-import { ReceiptForm } from '@/components/ReceiptForm';
-import { ReceiptPreview } from '@/components/ReceiptPreview';
-import { Download, Printer, Eye, EyeOff, Save, RotateCcw, ArrowLeft } from 'lucide-react';
-import { numberToWords } from '@/lib/numberToWords';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { toast } from 'sonner';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+"use client";
+
+import { useState, useEffect } from "react";
+import { ReceiptData, defaultReceiptData } from "@/types/receipt";
+import { ReceiptForm } from "@/components/ReceiptForm";
+import { ReceiptPreview } from "@/components/ReceiptPreview";
+import { Download, Printer, Eye, EyeOff, Save, RotateCcw, ArrowLeft } from "lucide-react";
+import { numberToWords } from "@/lib/numberToWords";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SalesAgreement = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
-  const editId = searchParams.get('id');
+  const editId = searchParams.get("id");
 
   const [data, setData] = useState<ReceiptData>(defaultReceiptData);
   const [generating, setGenerating] = useState(false);
@@ -24,9 +25,19 @@ const SalesAgreement = () => {
 
   useEffect(() => {
     if (editId) {
-      supabase.from('sales_agreements').select('*').eq('id', editId).single().then(({ data: record }) => {
-        if (record) setData(record.data as unknown as ReceiptData);
-      });
+      void fetch(`/api/sales-agreements/${editId}`)
+        .then(async (response) => {
+          if (!response.ok) return null;
+          return (await response.json()) as { record?: { data: ReceiptData } };
+        })
+        .then((payload) => {
+          if (payload?.record?.data) {
+            setData(payload.record.data);
+          }
+        })
+        .catch(() => {
+          toast.error("Unable to load agreement");
+        });
     }
   }, [editId]);
 
@@ -34,50 +45,60 @@ const SalesAgreement = () => {
     if (!user) return;
     setSaving(true);
     try {
+      const body = {
+        userId: user.id,
+        receiptNo: data.receiptNo,
+        data: JSON.parse(JSON.stringify(data)),
+      };
+
       if (editId) {
-        const { error } = await supabase.from('sales_agreements').update({
-          receipt_no: data.receiptNo,
-          data: JSON.parse(JSON.stringify(data)),
-        }).eq('id', editId);
-        if (error) throw error;
+        const response = await fetch(`/api/sales-agreements/${editId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!response.ok) throw new Error("Failed to update agreement");
       } else {
-        const { error } = await supabase.from('sales_agreements').insert([{
-          user_id: user.id,
-          receipt_no: data.receiptNo,
-          data: JSON.parse(JSON.stringify(data)),
-        }]);
-        if (error) throw error;
+        const response = await fetch("/api/sales-agreements", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!response.ok) throw new Error("Failed to save agreement");
       }
-      toast.success('Saved to database');
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to save');
+      toast.success("Saved to database");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to save");
     }
     setSaving(false);
   };
 
-  const handleReset = () => { setData(defaultReceiptData); toast.success('Form cleared'); };
+  const handleReset = () => {
+    setData(defaultReceiptData);
+    toast.success("Form cleared");
+  };
 
   const updateField = (field: keyof ReceiptData, value: string) => {
     setData(prev => {
       const next = { ...prev, [field]: value };
-      if (field === 'salePrice') {
-        const num = parseFloat(value.replace(/,/g, ''));
-        next.amountInWords = isNaN(num) || num === 0 ? '' : numberToWords(num);
+      if (field === "salePrice") {
+        const num = parseFloat(value.replace(/,/g, ""));
+        next.amountInWords = isNaN(num) || num === 0 ? "" : numberToWords(num);
       }
       return next;
     });
   };
 
   const generateCanvas = async () => {
-    const el = document.getElementById('receipt-preview');
+    const el = document.getElementById("receipt-preview");
     if (!el) return null;
     const parent = el.parentElement;
     const origParentStyles = parent ? { overflow: parent.style.overflow, maxHeight: parent.style.maxHeight, width: parent.style.width } : null;
     const origElStyles = { maxHeight: el.style.maxHeight, overflow: el.style.overflow, width: el.style.width, position: el.style.position };
-    if (parent) { parent.style.overflow = 'visible'; parent.style.maxHeight = 'none'; parent.style.width = '794px'; }
-    el.style.maxHeight = 'none'; el.style.overflow = 'visible'; el.style.width = '794px';
+    if (parent) { parent.style.overflow = "visible"; parent.style.maxHeight = "none"; parent.style.width = "794px"; }
+    el.style.maxHeight = "none"; el.style.overflow = "visible"; el.style.width = "794px";
     await new Promise(r => setTimeout(r, 150));
-    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794, windowWidth: 794 });
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff", width: 794, windowWidth: 794 });
     if (parent && origParentStyles) { parent.style.overflow = origParentStyles.overflow; parent.style.maxHeight = origParentStyles.maxHeight; parent.style.width = origParentStyles.width; }
     Object.assign(el.style, origElStyles);
     return canvas;
@@ -96,17 +117,19 @@ const SalesAgreement = () => {
       const wasHidden = await ensurePreviewVisible();
       const canvas = await generateCanvas();
       if (!canvas) return;
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
       const pW = pdf.internal.pageSize.getWidth(), pH = pdf.internal.pageSize.getHeight();
       const m = 5, aW = pW - 2 * m, aH = pH - 2 * m;
       const r = canvas.width / canvas.height, pr = aW / aH;
       let iW: number, iH: number;
       if (r > pr) { iW = aW; iH = aW / r; } else { iH = aH; iW = aH * r; }
-      pdf.addImage(imgData, 'PNG', (pW - iW) / 2, m, iW, iH);
+      pdf.addImage(imgData, "PNG", (pW - iW) / 2, m, iW, iH);
       pdf.save(`MasterAutoz-Agreement-${data.receiptNo}.pdf`);
       if (wasHidden) setShowPreview(false);
-    } catch { toast.error('Failed to generate PDF'); }
+    } catch {
+      toast.error("Failed to generate PDF");
+    }
     setGenerating(false);
   };
 
@@ -117,7 +140,7 @@ const SalesAgreement = () => {
       <header className="bg-brand-black border-b border-primary/30 sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/')} className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+            <button onClick={() => router.push("/")} className="flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
             <div className="text-center sm:text-left shrink-0">
@@ -168,7 +191,7 @@ const SalesAgreement = () => {
   );
 };
 
-const ActionBtn = ({ onClick, icon, label, className = '', disabled }: {
+const ActionBtn = ({ onClick, icon, label, className = "", disabled }: {
   onClick: () => void; icon: React.ReactNode; label: string; className?: string; disabled?: boolean;
 }) => (
   <button onClick={onClick} disabled={disabled} className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 font-semibold text-[11px] sm:text-sm rounded hover:opacity-80 transition-colors disabled:opacity-50 ${className}`}>

@@ -1,24 +1,27 @@
-import { useState } from 'react';
+"use client";
+
+import { useEffect, useState } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 const ALLOWED_EMAIL = 'jpmaster4rill@gmail.com';
 
 const Auth = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  if (user) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [router, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +36,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       toast.success('Welcome back!');
-      navigate('/');
+      router.push('/');
     } catch (error: any) {
       toast.error(error.message);
     } finally {

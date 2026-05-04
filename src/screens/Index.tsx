@@ -1,16 +1,18 @@
-import { useNavigate } from 'react-router-dom';
+"use client";
+
+import { useRouter } from "next/navigation";
 import { FileText, ScrollText, Clock, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const Index = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
     toast.success('Signed out');
-    navigate('/auth');
+    router.push('/auth');
   };
 
   return (
@@ -41,7 +43,7 @@ const Index = () => {
       <main className="flex-1 container mx-auto px-4 py-8 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
           <button
-            onClick={() => navigate('/sales-receipt')}
+            onClick={() => router.push('/sales-receipt')}
             className="group flex flex-col items-center gap-4 p-6 sm:p-8 rounded-xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-lg transition-all active:scale-[0.97]"
           >
             <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -56,7 +58,7 @@ const Index = () => {
           </button>
 
           <button
-            onClick={() => navigate('/sales-agreement')}
+            onClick={() => router.push('/sales-agreement')}
             className="group flex flex-col items-center gap-4 p-6 sm:p-8 rounded-xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-lg transition-all active:scale-[0.97]"
           >
             <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -71,7 +73,7 @@ const Index = () => {
           </button>
 
           <button
-            onClick={() => navigate('/history')}
+            onClick={() => router.push('/history')}
             className="group flex flex-col items-center gap-4 p-6 sm:p-8 rounded-xl border-2 border-border bg-card hover:border-primary/60 hover:shadow-lg transition-all active:scale-[0.97]"
           >
             <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
