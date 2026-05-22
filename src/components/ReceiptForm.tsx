@@ -187,8 +187,3 @@ export const ReceiptForm = ({ data, onUpdate }: Props) => {
     </div>
   );
 };
-        <Field label="Receipt No." value={data.receiptNo} onChange={v => onUpdate('receiptNo', v)} mono />
-      </Section>
-    </div>
-  );
-};

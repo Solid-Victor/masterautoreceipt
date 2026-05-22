@@ -26,7 +26,7 @@ body {
   --border: 0 0% 89.8%;
   --input: 0 0% 89.8%;
   --ring: 0 0% 3.6%;
-  --primary: 11 84% 57%;
+  --primary: 0 84% 57%;
   --primary-foreground: 0 0% 100%;
   --brand-black: 0 0% 8%;
 }
@@ -47,7 +47,7 @@ body {
   --border: 0 0% 14.9%;
   --input: 0 0% 14.9%;
   --ring: 0 0% 83.6%;
-  --primary: 11 84% 57%;
+  --primary: 0 84% 57%;
   --primary-foreground: 0 0% 9%;
   --brand-black: 0 0% 12%;
 }

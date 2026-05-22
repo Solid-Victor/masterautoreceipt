@@ -1,7 +1,16 @@
-import { type NextAuthOptions } from "next-auth";
+import { type NextAuthOptions, type DefaultSession } from "next-auth";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
+
+// Extend NextAuth types to include id in session
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string;
+    };
+  }
+}
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jpmaster4rill@gmail.com";
 

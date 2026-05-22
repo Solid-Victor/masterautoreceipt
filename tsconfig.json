@@ -19,6 +19,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -41,11 +42,7 @@
     "src",
     ".next/types/**/*.ts"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
+  "references": [],
   "exclude": [
     "node_modules"
   ]
