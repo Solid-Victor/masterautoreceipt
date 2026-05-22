@@ -1,7 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import eslintConfigNext from "eslint-config-next";
 
 export default tseslint.config(
   { ignores: ["dist", ".next", "node_modules"] },
@@ -22,9 +21,5 @@ export default tseslint.config(
         { argsIgnorePattern: "^_" },
       ],
     },
-  },
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [eslintConfigNext],
   }
 );
