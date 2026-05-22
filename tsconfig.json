@@ -19,8 +19,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"

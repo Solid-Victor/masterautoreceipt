@@ -1,14 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/agreements/[id]/route": "app/api/agreements/[id]/route.js",
-  "/api/agreements/route": "app/api/agreements/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/receipts/[id]/route": "app/api/receipts/[id]/route.js",
-  "/api/receipts/route": "app/api/receipts/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/page": "app/page.js",
-  "/dashboard/history/page": "app/dashboard/history/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/sales-agreement/page": "app/dashboard/sales-agreement/page.js",
   "/dashboard/sales-receipt/page": "app/dashboard/sales-receipt/page.js"
 }
