@@ -308,7 +308,7 @@ Note: No refund of money after payment. Change of ownership must be completed wi
 
           <div className="mt-6 flex justify-center">
             <img
-              src="/car-brand-logos.svg"
+              src="/car-brand-logos.png"
               alt="Car brand logos"
               className="h-12 w-full max-w-[640px] object-contain"
             />
