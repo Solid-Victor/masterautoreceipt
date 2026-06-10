@@ -1,0 +1,44 @@
+<svg viewBox="0 0 920 82" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Car brand logo strip">
+  <rect width="920" height="82" fill="none"/>
+  <g transform="translate(16 7)" stroke="#1f2937" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="34" cy="34" rx="31" ry="23"/>
+    <ellipse cx="34" cy="34" rx="12" ry="23"/>
+    <ellipse cx="34" cy="30" rx="24" ry="9"/>
+  </g>
+  <g transform="translate(104 7)">
+    <circle cx="34" cy="34" r="29" fill="none" stroke="#6b7280" stroke-width="4"/>
+    <rect x="6" y="26" width="56" height="17" fill="#6b7280" rx="2"/>
+    <text x="34" y="39" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">NISSAN</text>
+  </g>
+  <g transform="translate(196 7)" stroke="#6b7280" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="34" cy="34" rx="30" ry="24"/>
+    <path d="M40 18l-18 31h31"/>
+  </g>
+  <g transform="translate(288 24)" stroke="#6b7280" fill="none" stroke-width="4">
+    <circle cx="17" cy="17" r="15"/>
+    <circle cx="39" cy="17" r="15"/>
+    <circle cx="61" cy="17" r="15"/>
+    <circle cx="83" cy="17" r="15"/>
+  </g>
+  <g transform="translate(414 8)" fill="#1f2937">
+    <path d="M48 4 14 24l25 14-25 14 34 20 34-20-25-14 25-14z"/>
+    <path d="M48 20 34 28l14 8 14-8z" fill="#ffffff" opacity=".55"/>
+  </g>
+  <g transform="translate(526 9)">
+    <ellipse cx="42" cy="33" rx="39" ry="21" fill="#1f6fb8"/>
+    <text x="42" y="40" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" text-anchor="middle" fill="#ffffff">Ford</text>
+  </g>
+  <g transform="translate(642 8)" stroke="#6b7280" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="34" cy="34" r="30"/>
+    <path d="M17 20h34M21 20l13 34 13-34M16 32l18 28 18-28"/>
+  </g>
+  <g transform="translate(734 9)" stroke="#6b7280" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="42" cy="33" rx="39" ry="22"/>
+    <path d="M29 48 39 18M45 48l10-30M30 33h24"/>
+  </g>
+  <g transform="translate(838 7)" fill="#d21f2b">
+    <path d="M34 3 51 25 34 47 17 25z"/>
+    <path d="M13 31 30 53 13 75-4 53z" transform="translate(13 -5)"/>
+    <path d="M55 31 72 53 55 75 38 53z" transform="translate(-13 -5)"/>
+  </g>
+</svg>

@@ -161,10 +161,10 @@ export const SalesAgreementForm = ({ data, onUpdate }: Props) => {
           full
         />
         <Field
-          label="Payment Terms"
+          label="Amount in Words"
           value={data.paymentTerms}
           onChange={(v) => onUpdate("paymentTerms", v)}
-          placeholder="e.g. Full payment on delivery"
+          placeholder="e.g. Two Million, Nine Hundred Thousand"
           full
         />
         <Field

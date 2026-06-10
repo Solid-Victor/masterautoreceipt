@@ -4,15 +4,45 @@ import { ReceiptData } from "@/types/receipt";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download, Copy } from "lucide-react";
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { toast } from "sonner";
 
 interface Props {
   data: ReceiptData;
 }
 
+const getYearSuffix = (year: string) => {
+  const cleanYear = year.trim();
+  return cleanYear.length > 2 ? cleanYear.slice(-2) : cleanYear;
+};
+
+const Underline = ({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) => (
+  <span
+    className={`min-w-0 flex-1 break-words border-b border-slate-500 px-3 pb-0.5 font-semibold uppercase leading-6 text-slate-700 ${className}`}
+  >
+    {children}
+  </span>
+);
+
+const SignatureLine = ({ label }: { label: string }) => (
+  <div className="text-center">
+    <div className="h-12 border-b border-slate-500" />
+    <div className="mt-1 text-xs font-semibold text-slate-600">{label}</div>
+  </div>
+);
+
 export const ReceiptPreview = ({ data }: Props) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const vehicle = [data.vehicleMake, data.vehicleModel, data.vehicleYear]
+    .filter(Boolean)
+    .join(" ");
+  const yearSuffix = getYearSuffix(data.saleYear);
 
   const handleDownloadPDF = async () => {
     if (!contentRef.current) return;
@@ -43,52 +73,34 @@ export const ReceiptPreview = ({ data }: Props) => {
   };
 
   const handleCopyText = () => {
-    const text = `
-MASTER AUTO'S
-Cars Sales & Nationwide Delivery
+    const text = `MASTER AUTO'S
+Sales Receipt
+Quality Cars, Nationwide Delivery
+Main Office: Abuja, Nigeria
+CEO: +234 907 499 8543 | Email: info@masterautos.ng
 
-OFFICE: Abuja, Nigeria | PHONE: +234 907 499 8543
+This is to certify that I, ${data.sellerName} (Seller)
+of ${data.sellerAddress}
 
-Note: there is no refund
+Has agreed to sell my fairly used Car: ${vehicle} (Make/Model)
 
-SALES AGREEMENT
+With Chassis No: ${data.chassisNo}         Engine No: ${data.engineNo}
 
-This is to certify that
+Color: ${data.vehicleColor}         Reg. No (Plate): ${data.regNo}
 
-Mr/Mrs. ${data.sellerName}
+Odometer Reading: ${data.odometerReading}
 
-Of ${data.sellerAddress}
+to Mr/Mrs/Ms: ${data.buyerName} (Buyer)
 
-Has agreed to tell my motor vehicle with
+of Address: ${data.buyerAddress}
 
-Type of Vehicle: ${data.vehicleMake} ${data.vehicleModel} ${data.vehicleYear}
+on this day: ${data.saleDay} of ${data.saleMonth}, 20 ${yearSuffix}
 
-Engine No: ${data.engineNo}
+at the rate of ₦ ${data.salePrice} (Amount in Words: ${data.amountInWords}).
 
-Reg. No: ${data.regNo}
+The buyer has paid in full/part following the acceptance by both parties. The vehicle and all original valid particulars have been handed over to the buyer.
 
-To Mr/Mrs: ${data.buyerName}
-
-Of ${data.buyerAddress}
-
-At the sum of: ₦${data.salePrice}
-
-Amount in Words: ${data.amountInWords}
-
-Therefore the said buyer paid the amount stated above under witness signed so as from the day of this agreement all the particulars related to the said vehicle have been handed over to the said buyer as the rightful owner.
-
-This agreement is made this: __________ day of _________________ 20__________
-
-SELLER                                      BUYER
-Name: ${data.sellerName}         Name: ${data.buyerName}
-Sign: ____________________________  Sign: ____________________________
-Phone: ____________________________  Phone: ____________________________
-
-WITNESS                                     WITNESS
-Name: ____________________________  Name: ____________________________
-Sign: ____________________________  Sign: ____________________________
-Phone: ____________________________  Phone: ____________________________
-    `;
+Note: No refund of money after payment. Change of ownership must be completed within 7 days.`;
     navigator.clipboard.writeText(text);
     toast.success("Receipt copied to clipboard");
   };
@@ -114,189 +126,180 @@ Phone: ____________________________  Phone: ____________________________
 
       <div
         ref={contentRef}
-        className="bg-white text-black rounded p-0 print:p-0 print:border-0"
-        style={{ fontFamily: "Arial, sans-serif" }}
+        className="mx-auto w-full max-w-[794px] bg-white px-8 py-6 text-slate-700 shadow-sm"
+        style={{
+          fontFamily: "Arial, sans-serif",
+          backgroundColor: "#ffffff",
+          minHeight: "1123px",
+        }}
       >
-        {/* Header with Logo and Company Info */}
-        <div className="p-6 pb-0">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            {/* Logo */}
-            <div className="flex-shrink-0 w-32 h-20">
-              <img 
-                src="/master-auto-logo.png" 
-                alt="Master Auto's Logo" 
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  img.style.display = 'none';
-                }}
-              />
-            </div>
-            
-            {/* Company Info */}
-            <div className="flex-grow text-center">
-              <h1 className="text-2xl font-bold text-red-600" style={{ letterSpacing: "0.1em" }}>
-                MASTER AUTO'S
-              </h1>
-              <p className="text-sm text-blue-600 font-bold">Cars Sales & Nationwide Delivery</p>
-            </div>
-          </div>
+        <div className="flex items-start justify-between text-[11px] font-bold text-slate-500">
+          <span>MASTER AUTO'S</span>
+          <span>Receipt No: {data.receiptNo}</span>
+        </div>
 
-          {/* Office Info Row */}
-          <div className="grid grid-cols-2 gap-8 text-sm mb-3 border-b border-gray-400 pb-3">
-            <div>
-              <span className="font-bold text-red-600">OFFICE:</span>
-              <span className="ml-2">Abuja, Nigeria</span>
+        <div className="mt-9 grid grid-cols-[160px_1fr] items-center gap-6">
+          <div className="flex justify-center">
+            <img
+              src="/master-auto-logo.png"
+              alt="Master Auto's logo"
+              className="h-28 w-36 object-contain"
+            />
+          </div>
+          <div className="text-center">
+            <h1 className="text-[34px] font-extrabold tracking-wide text-slate-700">
+              MASTER AUTO'S
+            </h1>
+            <p className="mt-1 text-sm font-semibold text-slate-600">
+              Quality Cars, Nationwide Delivery
+            </p>
+            <p className="mt-1 text-sm font-semibold text-slate-600">
+              Main Office: Abuja, Nigeria
+            </p>
+            <p className="mt-1 text-sm font-semibold text-slate-600">
+              CEO: +234 907 499 8543 | Email: info@masterautos.ng
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-7 grid grid-cols-[1fr_auto] items-end">
+          <h2 className="pl-28 text-center text-2xl font-extrabold tracking-wide text-slate-700">
+            SALES RECEIPT
+          </h2>
+          <div className="border border-slate-600 text-xs text-slate-700">
+            <div className="grid grid-cols-3 border-b border-slate-600 font-bold">
+              <div className="border-r border-slate-600 px-4 py-1 text-center">
+                Day
+              </div>
+              <div className="border-r border-slate-600 px-4 py-1 text-center">
+                Month
+              </div>
+              <div className="px-4 py-1 text-center">Year</div>
             </div>
-            <div className="text-right">
-              <span className="font-bold text-red-600">PHONE:</span>
-              <span className="ml-2">+234 907 499 8543</span>
+            <div className="grid grid-cols-3 font-semibold">
+              <div className="border-r border-slate-600 px-4 py-1 text-center">
+                {data.saleDay}
+              </div>
+              <div className="border-r border-slate-600 px-4 py-1 text-center">
+                {data.saleMonth}
+              </div>
+              <div className="px-4 py-1 text-center">{data.saleYear}</div>
             </div>
           </div>
         </div>
 
-        {/* Red Line Separator */}
-        <div className="h-1 bg-red-600"></div>
+        <div className="mt-9 space-y-3 text-sm leading-6 text-slate-700">
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">This is to certify that I,</span>
+            <Underline>{data.sellerName}</Underline>
+            <span className="w-16 shrink-0 text-right font-semibold">(Seller)</span>
+          </div>
 
-        {/* No Refund Note */}
-        <div className="px-6 pt-4 pb-2">
-          <p className="text-sm">Note: there is no refund</p>
-        </div>
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">of</span>
+            <Underline>{data.sellerAddress}</Underline>
+          </div>
 
-        {/* Sales Agreement Title */}
-        <div className="text-center pt-4 pb-4">
-          <h2 className="text-xl font-bold tracking-widest">SALES AGREEMENT</h2>
-        </div>
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">Has agreed to sell my fairly used Car:</span>
+            <Underline>{vehicle}</Underline>
+            <span className="w-24 shrink-0 text-right font-semibold">
+              (Make/Model)
+            </span>
+          </div>
 
-        {/* Agreement Content */}
-        <div className="px-6 space-y-3 text-sm leading-relaxed">
-          <p>This is to certify that</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            Mr/Mrs. <span className="font-semibold">{data.sellerName}</span>
-          </p>
-
-          <p>Of</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            <span className="font-semibold">{data.sellerAddress}</span>
-          </p>
-
-          <p>Has agreed to tell my motor vehicle with</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            Type of Vehicle: <span className="font-semibold">{data.vehicleMake} {data.vehicleModel} {data.vehicleYear}</span>
-          </p>
-
-          <p className="border-b border-gray-400 pb-1">
-            Engine No: <span className="font-semibold">{data.engineNo}</span>
-          </p>
-
-          <p className="border-b border-gray-400 pb-1">
-            Reg. No: <span className="font-semibold">{data.regNo}</span>
-          </p>
-
-          <p>To Mr/Mrs:</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            <span className="font-semibold">{data.buyerName}</span>
-          </p>
-
-          <p>Of</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            <span className="font-semibold">{data.buyerAddress}</span>
-          </p>
-
-          <p>At the sum of:</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            <span className="font-semibold">₦{data.salePrice}</span>
-          </p>
-
-          <p className="italic text-xs">Amount in Words: {data.amountInWords}</p>
-
-          <p className="pt-2">
-            Therefore the said buyer paid the amount stated above under witness signed so as from the day of this agreement all the particulars related to the said vehicle have been handed over to the said buyer as the rightful owner.
-          </p>
-
-          <p>This agreement is made this:</p>
-          
-          <p className="border-b border-gray-400 pb-1">
-            ______________ day of __________________________ 20__________
-          </p>
-        </div>
-
-        {/* Signature Section */}
-        <div className="px-6 pt-8 pb-6">
-          <div className="grid grid-cols-2 gap-8 text-sm mb-8">
-            {/* Seller */}
-            <div>
-              <p className="font-bold mb-4">SELLER</p>
-              <div className="space-y-6">
-                <div>
-                  <p>Name: <span className="border-b border-gray-400 inline-block w-32">{data.sellerName}</span></p>
-                </div>
-                <div>
-                  <p>Sign: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Phone: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-8">
+            <div className="flex items-end gap-2">
+              <span className="shrink-0">With Chassis No:</span>
+              <Underline>{data.chassisNo}</Underline>
             </div>
-
-            {/* Buyer */}
-            <div>
-              <p className="font-bold mb-4">BUYER</p>
-              <div className="space-y-6">
-                <div>
-                  <p>Name: <span className="border-b border-gray-400 inline-block w-32">{data.buyerName}</span></p>
-                </div>
-                <div>
-                  <p>Sign: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Phone: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-              </div>
+            <div className="flex items-end gap-2">
+              <span className="shrink-0">Engine No:</span>
+              <Underline>{data.engineNo || "NIL"}</Underline>
             </div>
           </div>
 
-          {/* Witnesses */}
-          <div className="grid grid-cols-2 gap-8 text-sm border-t border-gray-400 pt-6">
-            {/* Witness 1 */}
-            <div>
-              <p className="font-bold mb-4">WITNESS</p>
-              <div className="space-y-6">
-                <div>
-                  <p>Name: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Sign: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Phone: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-8">
+            <div className="flex items-end gap-2">
+              <span className="shrink-0">Color:</span>
+              <Underline>{data.vehicleColor}</Underline>
             </div>
-
-            {/* Witness 2 */}
-            <div>
-              <p className="font-bold mb-4">WITNESS</p>
-              <div className="space-y-6">
-                <div>
-                  <p>Name: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Sign: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-                <div>
-                  <p>Phone: <span className="border-b border-gray-400 inline-block w-32"></span></p>
-                </div>
-              </div>
+            <div className="flex items-end gap-2">
+              <span className="shrink-0">Reg. No (Plate):</span>
+              <Underline>{data.regNo}</Underline>
             </div>
           </div>
+
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">Odometer Reading:</span>
+            <Underline>{data.odometerReading}</Underline>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">to Mr/Mrs/Ms:</span>
+            <Underline>{data.buyerName}</Underline>
+            <span className="w-16 shrink-0 text-right font-semibold">(Buyer)</span>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">of Address:</span>
+            <Underline>{data.buyerAddress}</Underline>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">on this day:</span>
+            <Underline className="max-w-28">{data.saleDay}</Underline>
+            <span className="shrink-0">of</span>
+            <Underline>{data.saleMonth}</Underline>
+            <span className="shrink-0">, 20</span>
+            <Underline className="max-w-28">{yearSuffix}</Underline>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <span className="shrink-0">at the rate of ₦</span>
+            <Underline className="max-w-44 normal-case">{data.salePrice}</Underline>
+            <span className="shrink-0">(Amount in Words:</span>
+            <Underline>{data.amountInWords}</Underline>
+            <span className="shrink-0">).</span>
+          </div>
+
+          <div className="pt-3 text-sm font-semibold italic leading-7 text-slate-600">
+            The buyer has paid in full/part following the acceptance by both
+            parties. The vehicle and all original valid particulars have been
+            handed over to the buyer.
+          </div>
+
+          <div className="pt-1 text-sm font-extrabold text-slate-700">
+            Note: No refund of money after payment. Change of ownership must be
+            completed within 7 days.
+          </div>
+        </div>
+
+        <div className="mt-7 grid grid-cols-2 gap-20 px-2">
+          <SignatureLine label="Seller's Signature" />
+          <SignatureLine label="Buyer's Signature" />
+        </div>
+
+        <div className="mt-8 grid grid-cols-2 gap-20 px-2">
+          <SignatureLine label="Witness Signature" />
+          <SignatureLine label="Witness Signature" />
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <img
+            src="/car-brand-logos.svg"
+            alt="Car brand logos"
+            className="h-12 w-full max-w-[640px] object-contain"
+          />
+        </div>
+
+        <div className="mt-1 text-center text-sm font-extrabold text-slate-700">
+          Please contact us for all car brands!
+        </div>
+
+        <div className="mt-11 flex items-end justify-between text-[10px] font-semibold text-slate-500">
+          <div>https://elite-drive-showcase.vercel.app</div>
+          <div>Page 1 of 1</div>
         </div>
       </div>
     </div>

@@ -4,11 +4,29 @@ import { useState, useEffect } from "react";
 import { SalesAgreementForm } from "@/components/SalesAgreementForm";
 import { SalesAgreementPreview } from "@/components/SalesAgreementPreview";
 import { defaultSalesAgreementData, type SalesAgreementData } from "@/types/salesAgreement";
+import { numberToWords } from "@/lib/numberToWords";
+import { parsePriceToNumber } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function SalesAgreementPage() {
   const [data, setData] = useState<SalesAgreementData>(defaultSalesAgreementData);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!data.salePrice) return;
+
+    try {
+      const numPrice = parsePriceToNumber(data.salePrice);
+      if (!isNaN(numPrice)) {
+        setData((prev) => ({
+          ...prev,
+          paymentTerms: numberToWords(numPrice).replace(/ Naira Only$/, ""),
+        }));
+      }
+    } catch (error) {
+      console.error("Error converting price to words:", error);
+    }
+  }, [data.salePrice]);
 
   const handleUpdate = (field: keyof SalesAgreementData, value: string) => {
     setData((prev) => ({
